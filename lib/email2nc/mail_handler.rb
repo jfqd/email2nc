@@ -1,9 +1,12 @@
 require 'terrapin'
 require 'mail'
 require 'time'
+require 'logger'
 
 module Email2nc
   class MailHandler
+
+    LOGGER = ( ENV['DEBUG'] == 'true' ? Logger.new(STDERR) : nil )
 
     def self.receive(raw_mail)
       raw_mail.force_encoding('ASCII-8BIT') if raw_mail.respond_to?(:force_encoding)
@@ -32,27 +35,37 @@ module Email2nc
         remove(attachments)
         return true
       else
-        STDERR.puts "Error: mail is missing attachements"
+        STDERR.puts "Error: mail is missing attachments"
       end
     end
 
     def send_to_nextcloud(attachments)
       cmd   = '/usr/bin/curl'
-      month = Time.now.month
+      month = "0#{Time.now.month}"[-2..-1]
+      year  = Time.now.year
+      basefolder ="#{username}/#{folder}"
+
+      puts "create base folder" if ENV['DEBUG']
+      path    = "#{nextcloud_url}/remote.php/dav/files/#{basefolder}"
+      options = %[-s -u :credentials -X MKCOL :path]
+      args    = { credentials: credentials, path: path }
+      execute(cmd, options, args)
+      
+      puts "create year folder" if ENV['DEBUG']
+      path    = "#{nextcloud_url}/remote.php/dav/files/#{basefolder}/#{year}"
+      options = %[-s -u :credentials -X MKCOL :path]
+      args    = { credentials: credentials, path: path }
+      
+      puts "create month folder" if ENV['DEBUG']
+      path    = "#{nextcloud_url}/remote.php/dav/files/#{basefolder}/#{year}/#{month}"
+      options = %[-s -u :credentials -X MKCOL :path]
+      args    = { credentials: credentials, path: path }
+      execute(cmd, options, args)
+      
+      puts "upload attachments" if ENV['DEBUG']
       attachments.each do |attachment|
-        # create base folder
-        path    = "#{nextcloud_url}/remote.php/dav/files/#{username}/#{folder}"
-        options = %[-s -u :credentials -X MKCOL ':path']
-        args    = { credentials: credentials, path: path }
-        execute(cmd, options, args)
-        # create month folder
-        path    = "#{nextcloud_url}/remote.php/dav/files/#{username}/#{folder}/#{month}"
-        options = %[-s -u :credentials -X MKCOL ':path']
-        args    = { credentials: credentials, path: path }
-        execute(cmd, options, args)
-        # upload attachement
-        path    = "#{nextcloud_url}/remote.php/dav/files/#{username}/#{folder}/#{month}/#{File.basename(attachement)}"
-        options = %[-s -u :credentials -T ':attachment' ':path']
+        path    = "#{nextcloud_url}/remote.php/dav/files/#{basefolder}/#{year}/#{month}/#{File.basename(attachment)}"
+        options = %[-s -u :credentials -T :attachment :path]
         args    = { credentials: credentials, attachment: attachment, path: path }
         execute(cmd, options, args)
       end
@@ -69,7 +82,7 @@ module Email2nc
     end
 
     def credentials
-      "#{username}#{ENV['NC_PASSWORD']}"
+      "#{username}:#{ENV['NC_PASSWORD']}"
     end
 
     def username
@@ -85,7 +98,7 @@ module Email2nc
         cmd,
         options,
         expected_outcodes: [0,1],
-        logger: nil
+        logger: LOGGER
       )
       begin
         return line.run(args)
