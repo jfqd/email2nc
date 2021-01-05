@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require "email2nc"
+require 'dotenv'
+Dotenv.load
+
+Email2nc::CLI.new.call

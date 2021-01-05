@@ -1,0 +1,14 @@
+/.bundle/
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+.DS_Store
+*.gem
+.rbenv-gemsets
+.ruby-version
+.travis.yml
+Gemfile.lock
