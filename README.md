@@ -5,7 +5,7 @@ Send pdf-documents in emails fetched via imap to a given nextcloud-instance.
 ## Installation
 
 ```
-git clone email2nc.git
+git clone https://github.com/jfqd/email2nc.git
 cd email2nc
 gem build email2nc.gemspec
 
