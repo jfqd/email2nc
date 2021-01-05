@@ -1,6 +1,6 @@
 # Email2nc
 
-Send pdf-documents in emails fetched via imap to a given printer.
+Send pdf-documents in emails fetched via imap to a given nextcloud-instance.
 
 ## Installation
 
