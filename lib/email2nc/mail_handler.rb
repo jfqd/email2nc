@@ -41,17 +41,17 @@ module Email2nc
       month = Time.now.month
       attachments.each do |attachment|
         # create base folder
-        path    = "#{NC_URL}/remote.php/dav/files/#{NC_USERNAME}/#{NC_FOLDER}"
+        path    = "#{nextcloud_url}/remote.php/dav/files/#{username}/#{folder}"
         options = %[-s -u :credentials -X MKCOL ':path']
         args    = { credentials: credentials, path: path }
         execute(cmd, options, args)
         # create month folder
-        path    = "#{NC_URL}/remote.php/dav/files/#{NC_USERNAME}/#{month}"
+        path    = "#{nextcloud_url}/remote.php/dav/files/#{username}/#{folder}/#{month}"
         options = %[-s -u :credentials -X MKCOL ':path']
         args    = { credentials: credentials, path: path }
         execute(cmd, options, args)
         # upload attachement
-        path    = "#{NC_URL}/remote.php/dav/files/#{NC_USERNAME}/#{month}/#{File.basename(attachement)}"
+        path    = "#{nextcloud_url}/remote.php/dav/files/#{username}/#{folder}/#{month}/#{File.basename(attachement)}"
         options = %[-s -u :credentials -T ':attachment' ':path']
         args    = { credentials: credentials, attachment: attachment, path: path }
         execute(cmd, options, args)
@@ -64,8 +64,20 @@ module Email2nc
 
     private
 
+    def nextcloud_url
+      ENV['NC_URL']
+    end
+
     def credentials
-      "#{ENV['NC_USERNAME']}#{ENV['NC_PASSWORD']}"
+      "#{username}#{ENV['NC_PASSWORD']}"
+    end
+
+    def username
+      ENV['NC_USERNAME']
+    end
+
+    def folder
+      ENV['NC_FOLDER']
     end
 
     def execute(cmd, options="", args={})
