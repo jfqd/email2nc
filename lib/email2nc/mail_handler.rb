@@ -22,6 +22,19 @@ module Email2nc
     end
 
     def receive(email)
+      # process domain filter
+      if ENV['ALLOW_LIST'] != ""
+        from = email.envelope_from
+        pass = false
+        entries = ENV['ALLOW_LIST'].split(' ')
+        entries.each { |e|
+          pass = true if from.include?("#{e}")
+        }
+        # move to failed folder if from-
+        # domain is not in the whitelist
+        return false if pass == false
+      end
+      # extract attachments for upload
       attachments = []
       if email.attachments && email.attachments.any?
         email.attachments.each do |attachment|
