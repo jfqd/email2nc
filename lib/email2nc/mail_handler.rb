@@ -24,7 +24,7 @@ module Email2nc
     def receive(email)
       # process domain filter
       if ENV['ALLOW_LIST'] != ""
-        from = email.envelope_from
+        from = email.from.to_s
         pass = false
         entries = ENV['ALLOW_LIST'].split(' ')
         entries.each { |e|
