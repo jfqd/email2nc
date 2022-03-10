@@ -30,7 +30,7 @@ bundle install --binstubs
 Add a cronjob to execute the script
 
 ```
-*/5 * * * * cd /home/jerry/email2nc && ./bin/email2nc
+*/5 * * * * cd /home/jerry/email2nc && bundle exec ./bin/email2nc
 ```
 
 ## License
