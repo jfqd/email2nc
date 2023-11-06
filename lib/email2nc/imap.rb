@@ -13,7 +13,7 @@ module Email2nc
         move_on_failure = imap_options[:move_on_failure] || 'failure'
         move_on_success = imap_options[:move_on_success] || 'success'
         return if imap_options[:username].nil? || imap_options[:password].nil?
-        imap = Net::IMAP.new(host, port, ssl)
+        imap = Net::IMAP.new(host, port: port, ssl: ssl)
         imap.login(imap_options[:username], imap_options[:password])
         imap.select(folder)
         imap.search(['NOT', 'SEEN']).each do |message_id|
